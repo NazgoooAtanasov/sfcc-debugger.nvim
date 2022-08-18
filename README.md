@@ -1,4 +1,4 @@
-# Neovim debugger implementation for SFCC.
+# SFCC debugger implementation for neovim.
 
 ### Dependencies:
 1. [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
