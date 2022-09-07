@@ -11,6 +11,7 @@ local username = nil
 local password = nil
 local auth = nil
 local breakpoints = {}
+local ns = vim.api.nvim_create_namespace('sfcc-debugger.nvim')
 
 function split(s, delimiter)
     local result = {};
@@ -110,6 +111,9 @@ M.add_breakpoint = function ()
             content_type = "application/json",
         }
     })
+
+    -- here it is row - 1, because the row is calculated on 1 base indexing (ty lua) and the api function expects 0 based indexing.
+    vim.api.nvim_buf_set_extmark(0, ns, row - 1, 0, { virt_text = { { "B" } }, virt_text_pos = "right_align" })
 
     print(vim.inspect(request))
 end
