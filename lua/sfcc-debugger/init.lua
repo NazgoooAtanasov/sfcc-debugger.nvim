@@ -1,9 +1,11 @@
 local path = require('plenary.path')
 local curl = require('plenary.curl')
 local utils = require('sfcc-debugger.utils')
+local threads = require('sfcc-debugger.threads.threads_manip')
 
 local M = {}
 
+-- move this to constants file
 local CLIENT_ID = 'sfcc-debugger.nvim'
 
 local cwd = vim.loop.cwd()
@@ -11,6 +13,7 @@ local hostname = nil
 local username = nil
 local password = nil
 local auth = nil
+
 local breakpoints = {}
 local extmarks = {}
 local ns = vim.api.nvim_create_namespace('sfcc-debugger.nvim')
@@ -155,16 +158,30 @@ M.delete_breakpoint = function ()
     print(vim.inspect(request))
 end
 
+--[[
+-- getting all the breakpoints in the program state.
+--]]
 M.get_breakpoints = function ()
     print(vim.inspect(breakpoints))
     return breakpoints
 end
 
-M.start = function ()
+--[[
+--  Debugging function wont be there at the end, or will it 
+--]]
+M.rocket_start = function ()
     M.init()
     M.attach()
     M.add_breakpoint()
 end
 
-    
+M.threads = function ()
+    threads.get_threads({
+        hostname = hostname,
+        username = username,
+        password = password,
+        auth = auth
+    })
+end
+
 return M
