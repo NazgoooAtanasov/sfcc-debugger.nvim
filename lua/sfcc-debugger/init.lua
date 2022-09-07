@@ -69,7 +69,7 @@ end
 M.add_breakpoint = function ()
     local cursor_pos = vim.api.nvim_win_get_cursor(0)
     local row = cursor_pos[1]
-    local current_file_path = '/home/ng/_Forkpoint/acne/app-project/app_acne_sfra/cartridge/controllers/ProductPersonalisation.js' -- vim.api.nvim_buf_get_name(0)
+    local current_file_path = vim.api.nvim_buf_get_name(0)
     local curr_file_split = split(current_file_path, "/")
 
     local idx = nil
@@ -98,15 +98,30 @@ M.add_breakpoint = function ()
         script_path = file_in_cloud
     })
 
+    local requestBody = {}
+    requestBody['_v'] = '2.0'
+    requestBody['breakpoints'] = breakpoints
+
     local request = curl.post("https://"..hostname.."/s/-/dw/debugger/v2_0/breakpoints", {
         auth = auth,
-        body = vim.fn.json_encode(breakpoints),
+        body = vim.fn.json_encode(requestBody),
         headers = {
-            x_dw_client_id = CLIENT_ID
+            x_dw_client_id = CLIENT_ID,
+            content_type = "application/json",
         }
     })
 
     print(vim.inspect(request))
+end
+
+M.get_breakpoints = function ()
+    print(vim.inspect(breakpoints))
+    return breakpoints
+end
+
+M.start = function ()
+    M.init()
+    M.attach()
 end
 
 return M
