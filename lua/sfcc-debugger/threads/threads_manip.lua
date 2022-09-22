@@ -52,14 +52,14 @@ M.reset_thread = function (sandbox_cnf)
 end
 
 M.get_variables = function (sandbox_cnf, thrd_idx, frm_idx)
-    local request = curl.get("https://"..sandbox_cnf.hostname.."/s/-/dw/debugger/v2_0/threads/"..thrd_idx.."/frames/"..frm_idx.."/variables", {
+    local request = curl.get("https://"..sandbox_cnf.hostname.."/s/-/dw/debugger/v2_0/threads/"..thrd_idx.."/frames/"..frm_idx.."/members", {
         auth = sandbox_cnf.auth,
         headers = {
             x_dw_client_id = CLIENT_ID
         }
     })
 
-    print(vim.inspect(vim.fn.json_decode(request.body)))
+    return vim.fn.json_decode(request.body)
 end
 
 return M
