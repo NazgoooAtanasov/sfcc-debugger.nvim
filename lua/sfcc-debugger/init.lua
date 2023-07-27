@@ -175,13 +175,85 @@ M.rocket_start = function ()
     M.add_breakpoint()
 end
 
-M.threads = function ()
-    threads.get_threads({
+M.vars = function ()
+    local threads_response = threads.get_threads({
+        hostname = hostname,
+        username = username,
+        password = password,
+        auth = auth
+    })
+
+    local script_threads = threads_response['script_threads']
+    if threads_response ~= nil and script_threads  ~= nil then
+        vim.api.nvim_command("vs vars")
+        local vars_buff = vim.api.nvim_get_current_buf()
+
+        -- only for thread_idx and frame_idx
+        local first_thread_id = script_threads[1].id
+        local vars = threads.get_variables({
+            hostname = hostname,
+            username = username,
+            password = password,
+            auth = auth
+        }, first_thread_id, 0)
+
+        local vars_obj = vars['object_members']
+        if vars_obj ~= nil then
+            for k, v in pairs(vars_obj) do
+                vim.api.nvim_buf_set_lines(
+                    vars_buff,
+                    -1, -1,
+                    true, {
+                        tostring(k).." "..v.name.." "..v.type
+                    }
+                )
+            end
+        end
+    else
+        print("no running threads yet")
+    end
+end
+
+M.reset = function ()
+    threads.reset_thread({
         hostname = hostname,
         username = username,
         password = password,
         auth = auth
     })
 end
+
+-- some magic left for laterzzzzz.
+-- vim.api.nvim_command("vs threads")
+-- local threads_buff = vim.api.nvim_get_current_buf()
+-- for k, v in pairs(script_threads) do
+--     local thread_id = v.id
+--     local thread_status = v.status
+--     local thread_call_stack = v.call_stack
+
+--     vim.api.nvim_buf_set_lines(
+--         threads_buff,
+--         -1,
+--         -1,
+--         true, {
+--             "thread id:"..tostring(thread_id).." "..thread_status
+--         }
+--     )
+
+--     for j, val in pairs(thread_call_stack) do
+--         -- call_stack_idx is the frame id and used for variables fetching.
+--         local call_stack_idx = val.index
+--         local call_stack_loc = val.location
+
+--         vim.api.nvim_buf_set_lines(
+--             threads_buff,
+--             -1,
+--             -1,
+--             true, {
+--                 "    "..call_stack_loc.function_name.." "..tostring(call_stack_loc.line_number)..":"..call_stack_loc.script_path.." call stack index"..call_stack_idx
+--             }
+--         )
+--     end
+-- end
 
 return M
